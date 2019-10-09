@@ -38,16 +38,30 @@ class RenewDataMakeScript(df:DataFrame, argumentBuilder: RenewDataArgumentBuilde
       |## Generate Data: ${String.format("%1$tF %1$tT", new Date(System.currentTimeMillis()))}
       |## Redata of table: ${argumentBuilder.retable.replaceAll("CCIC_EDW_","CCIC_EDW.")}
       |############################
+      |check(){
+      |  if [ `grep "失败" ${argumentBuilder.outputpath}${argumentBuilder.retable}.log | wc -l` -gt 0 ];then
+      |        echo "[`date '+%Y-%m-%d %T'`] Compute error, please check ${argumentBuilder.retable} log file."
+      |        exit 1
+      |  fi
+      |}
+      |
+      |## truncate the log file, when run again.
+      |cat /dev/null > ${argumentBuilder.outputpath}${argumentBuilder.retable}.log
+      |
     """.stripMargin)
+
+  def drawPostfix(command: String): String = "echo \"nohup " + command + " " + Seq(LEVELTWO).map(">" * _).mkString + s""" ${argumentBuilder.outputpath}${argumentBuilder.retable}.log &\" """
 
   def make(): Boolean = {
 
+    var endScriptContent: String = null
     if (argumentBuilder.datelist.isEmpty) {
+
       df.collect().foreach{
         row =>
-          val shellCommand = row.getAs[String]("EXEC_COMMAND")
+          val shellCommand = drawPostfix(row.getAs[String]("EXEC_COMMAND")
             .replaceAll("##BEG_DATE##",argumentBuilder.begintime)
-            .replaceAll("##END_DATE##", argumentBuilder.endtime)
+            .replaceAll("##END_DATE##", argumentBuilder.endtime))
           level = row.getAs[Int]("END_RANK") ;level match {
 
           case LEVELZERO =>
@@ -66,31 +80,84 @@ class RenewDataMakeScript(df:DataFrame, argumentBuilder: RenewDataArgumentBuilde
             bufferScriptBoxBase.append(s"\n ## Confirm whether the layer perform artificial: $level, Check source data. \n").append( s"## ${shellCommand} \n")
 
         }
-
       }
+
+      endScriptContent =
+        s"""|${bufferScriptBoxBase.toString}
+            |${if(bufferScriptBoxBase.toString.contains("bigdata_mis")) "wait;check" else "##"}
+            |## level 3
+            |${bufferScriptBoxLevelThree.toString}
+            |## level 2
+            |wait;check
+            |${bufferScriptBoxLevelTwo.toString}
+            |## level 1
+            |wait;check
+            |${bufferScriptBoxLevelOne.toString}
+            |## level root
+            |wait;check
+            |${bufferScriptBoxLevelRoot.toString}
+            |wait;check
+            |
+        |echo "[`date '+%Y-%m-%d %T'`] ${argumentBuilder.retable} Compute Success !!!"
+      """.stripMargin
 
     }else{
 
-    }
+      val redate = argumentBuilder.datelist
+      if (!redate.contains(",")) throw new Exception("Error '--date-list' parameter")
 
-    val endScriptContent =
-      s"""|${bufferScriptBoxBase.toString}
-        |
-        |${if(bufferScriptBoxBase.toString.contains("bigdata_mis")) "wait" else "##"}
-        |## level 3
-        |${bufferScriptBoxLevelThree.toString}
-        |## level 2
-        |wait
-        |${bufferScriptBoxLevelTwo.toString}
-        |## level 1
-        |wait
-        |${bufferScriptBoxLevelOne.toString}
-        |## level root
-        |wait
-        |${bufferScriptBoxLevelRoot.toString}
+      df.collect().foreach{
+        row =>
+          val shellCommand = drawPostfix(row.getAs[String]("EXEC_COMMAND")
+            .replaceAll("##BEG_DATE##","\\$i")
+            .replaceAll("##END_DATE##", "\\$(date -d \"\\$i 1 days\" '+%Y-%m-%d')"))
+          level = row.getAs[Int]("END_RANK") ;level match {
+
+          case LEVELZERO =>
+            bufferScriptBoxLevelRoot.append(shellCommand + "\n")
+
+          case LEVELONE =>
+            bufferScriptBoxLevelOne.append(shellCommand + "\n")
+
+          case LEVELTWO =>
+            bufferScriptBoxLevelTwo.append(shellCommand + "\n")
+
+          case LEVELTHREE =>
+            bufferScriptBoxLevelThree.append(shellCommand + "\n")
+
+          case _ =>
+            bufferScriptBoxBase.append(s"\n ## Confirm whether the layer perform artificial: $level, Check source data. \n").append( s"## ${shellCommand} \n")
+
+        }
+      }
+
+      endScriptContent =
+        s"""|${bufferScriptBoxBase.toString}
+            |${if(bufferScriptBoxBase.toString.contains("bigdata_mis")) "wait;check" else "##"}
+            |
+            |for i in ${argumentBuilder.datelist.split(",").mkString(" ")};do
+            |## level 3
+            |${bufferScriptBoxLevelThree.toString}
+            |## level 2
+            |wait;check
+            |${bufferScriptBoxLevelTwo.toString}
+            |## level 1
+            |wait;check
+            |${bufferScriptBoxLevelOne.toString}
+            |## level root
+            |wait;check
+            |${bufferScriptBoxLevelRoot.toString}
+            |wait;check
+            |done
+            |echo "[`date '+%Y-%m-%d %T'`] ${argumentBuilder.retable} Compute Success !!!"
       """.stripMargin
 
+    }
+
+
+
     try{
+
       printWriter = new PrintWriter(new File(argumentBuilder.outputpath + File.separator + argumentBuilder.retable + ".sh"))
       printWriter.write(endScriptContent)
 

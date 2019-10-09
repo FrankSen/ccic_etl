@@ -14,16 +14,25 @@ class ArgumentManager extends Logging {
 
   def start (obj: RenewDataArgumentBuilder)={
 
-    if (obj.begintime != null && obj.datelist != null && obj.datelist != "null"){
+    if (obj.begintime != null && obj.begintime != "" && obj.datelist != null && obj.datelist != ""){
+
+      logError(s"Error: -s ${obj.begintime} and --data-list ${obj.datelist} choose one only.")
       throw new RedataArgumentConflictException
+
     }
 
     if (!obj.retable.startsWith("CCIC_EDW")){
+
+      logWarning(s"May be --rt ${obj.retable} isn`t belong to database of CCIC_EDW.")
       throw RedataArgumentTgtTableNameException("Target table name isn`t CCIC_EDW.")
+
     }
 
-    if(!obj.retable.contains(".")){
+    if(obj.retable.contains("\\.")){
+
+      logError(s"Option --rt ${obj.retable} don`t contain '.' flag.")
       throw RedataArgumentTgtTableNameIllegalException("Target table contain illegal argument.")
+
     }
 
   }
@@ -43,23 +52,9 @@ object ArgumentManager extends RedataArgumentUtils with Logging {
       override protected def logWarning(msg: => String): Unit = printMessage(msg)
 
       override def start(obj: RenewDataArgumentBuilder): Unit = {
-        try{
+
           super.start(obj)
-        }catch {
 
-          case e: RedataArgumentConflictException =>
-            logError(s"Error: -s ${obj.begintime} and --data-list ${obj.datelist} choose one only.")
-            e.printStackTrace()
-
-          case e: RedataArgumentTgtTableNameException =>
-            logWarning(s"May be --rt ${obj.retable} isn`t belong to database of CCIC_EDW.")
-            throw new Exception(e.message)
-
-          case e: RedataArgumentTgtTableNameIllegalException =>
-            logError(s"Option --rt ${obj.retable} don`t contain '.' flag.")
-            e.printStackTrace()
-
-        }
       }
 
     }

@@ -1,10 +1,13 @@
 package net.ccic.etl.submit
 
+import java.io.File
+
 import net.ccic.etl.EtlUserAppException
 import net.ccic.etl.launcher.{EtlApplication, JavaMainApplication}
 import net.ccic.etl.submit.EtlSubmit.{isRedata, printMessage}
 import net.ccic.etl.utils.Utils._
 import org.apache.spark.Logging
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -95,7 +98,7 @@ private class EtlSubmit extends Logging {
     childArgs += args.reTable
     childArgs += args.beginTime
     childArgs += args.endTime
-    childArgs += Option(args.outputPath).getOrElse("./")
+    childArgs += Option(args.outputPath).getOrElse("." + File.separatorChar)
     childArgs += args.dateList
     childArgs += args.interval
 
