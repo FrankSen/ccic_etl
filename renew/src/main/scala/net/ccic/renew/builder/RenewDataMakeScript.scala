@@ -50,7 +50,7 @@ class RenewDataMakeScript(df:DataFrame, argumentBuilder: RenewDataArgumentBuilde
       |
     """.stripMargin)
 
-  def drawPostfix(command: String): String = "echo \"nohup " + command + " " + Seq(LEVELTWO).map(">" * _).mkString + s""" ${argumentBuilder.outputpath}${argumentBuilder.retable}.log &\" """
+  def drawPostfix(command: String): String = " nohup " + command + " " + Seq(LEVELTWO).map(">" * _).mkString + s""" ${argumentBuilder.outputpath}${argumentBuilder.retable}.log & """
 
   def make(): Boolean = {
 
