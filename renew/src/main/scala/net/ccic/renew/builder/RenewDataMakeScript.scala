@@ -54,8 +54,9 @@ class RenewDataMakeScript(df:DataFrame, argumentBuilder: RenewDataArgumentBuilde
 
   def make(): Boolean = {
 
+    val datelist = argumentBuilder.datelist
     var endScriptContent: String = null
-    if (argumentBuilder.datelist.isEmpty) {
+    if (datelist == null || datelist.equals("")) {
 
       df.collect().foreach{
         row =>

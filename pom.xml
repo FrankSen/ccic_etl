@@ -129,6 +129,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.livy</groupId>
             <artifactId>livy-api</artifactId>
             <version>${projects.version}</version>
@@ -140,6 +146,12 @@
             <version>1.5.2</version>
 <!--            <scope>compile</scope>-->
         </dependency>
+
+ <!--       <dependency>
+            <groupId>org.pentaho</groupId>
+            <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+            <version>5.1.5-jhyde</version>
+        </dependency>-->
 
 <!--        scalatra
 

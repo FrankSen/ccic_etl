@@ -3,6 +3,9 @@ target/
 *.pid
 *.log
 
+jars/
+*.jar
+
 ### STS ###
 .apt_generated
 .classpath

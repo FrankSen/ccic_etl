@@ -7,6 +7,7 @@ import net.ccic.etl.launcher.{EtlApplication, JavaMainApplication}
 import net.ccic.etl.submit.EtlSubmit.{isRedata, printMessage}
 import net.ccic.etl.utils.Utils._
 import org.apache.spark.Logging
+import net.ccic.etl._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -72,13 +73,12 @@ private class EtlSubmit extends Logging {
 
     logInfo(
       """  Welcome to
-        |   ______________________     ____    ____
-        |  / ____/ ____/  _/ ____/    / __ )  /  _/
-        | / /   / /    / // /  ______/ /_/ /  / /
-        |/ /___/ /____/ // /__/_____/ /_/ /  / /
-        |\____/\____/___/\____/    /_____/ /___/
-        |
-      """.stripMargin)
+           ______________________     ____    ____
+          / ____/ ____/  _/ ____/    / __ )  /  _/
+         / /   / /    / // /  ______/ /_/ /  / /
+        / /___/ /____/ // /__/_____/ /_/ /  / /
+        \____/\____/___/\____/    /_____/ /___/ version %s
+      """.format(REDATE_VERSION))
     runMain(args)
 
   }
