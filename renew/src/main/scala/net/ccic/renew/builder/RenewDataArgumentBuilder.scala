@@ -16,7 +16,7 @@ class RenewDataArgumentBuilder(args: Seq[String]) extends AbstractRenewDataArgBu
   var datelist: String = null
   var outputpath: String = null
   var interval: String = null
-  private[renew] final val database: String = "ODS2_INTEG"
+  private[renew] final val database: String = "ODS_INFA"
 
   assert(args.size == 9, "RenewData parameter less, check your argument.")
 
