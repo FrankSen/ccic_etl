@@ -8,7 +8,8 @@ ALL_MODULE=(launcher sql renew)
 
 for VAR in ${ALL_MODULE[@]} ; do
 
-    cp ${APP_HOME}/${VAR}/target/*-1.0-SNAPSHOT.jar ${JAR_HOME}
+    cp ${APP_HOME}/${VAR}/target/*-1.0-SNAPSHOT.jar /home/franksen/下载
+#    cp ${APP_HOME}/${VAR}/target/*-1.0-SNAPSHOT.jar /home/franksen/MyIdeaProject/ccic_etl/jars
 
 done
 

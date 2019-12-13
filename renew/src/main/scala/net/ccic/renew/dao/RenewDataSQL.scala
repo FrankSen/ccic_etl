@@ -61,7 +61,7 @@ object RenewDataSQL{
         |                   END AS DEP_ETL_OBJ_ID ,
         |                   LEVEL leaf ,
         |                         connect_by_root dep_etl_obj_id child_id
-        |   FROM ${argBuilder.database}.CCIC_INFA_VIEW_INFO Aa
+        |   FROM ${argBuilder.database_smc}.CCIC_INFA_VIEW_INFO Aa
         |   WHERE REF_ETL_OBJ_ID LIKE 'CCIC_EDW%'
         |     AND REF_ETL_OBJ_ID NOT LIKE 'CCIC_SOURCE%'
         |     AND REF_ETL_OBJ_ID NOT LIKE 'CCIC_FDW%'
@@ -99,9 +99,9 @@ object RenewDataSQL{
         |      ,A.END_RANK
         |      ,D.PM_VALUE
         |FROM TAB4 A,
-        | ${argBuilder.database}.CCIC_INFA_WORKFLOW_INFO C ,
-        | ${argBuilder.database}.OPB_TASK T,
-        | ${argBuilder.database}.OPB_TASK_VAL_LIST D
+        | ${argBuilder.database_smc}.CCIC_INFA_WORKFLOW_INFO C ,
+        | ${argBuilder.database_ods}.OPB_TASK T,
+        | ${argBuilder.database_ods}.OPB_TASK_VAL_LIST D
         |WHERE A.REF_ETL_OBJ_ID=SUBSTR(C.SESSION_NAME,3)
         |AND C.SESSION_ID=T.TASK_ID
         |AND T.TASK_ID=D.TASK_ID
