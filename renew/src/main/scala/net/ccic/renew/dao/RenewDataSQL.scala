@@ -134,6 +134,7 @@ object RenewDataSQL{
         | ,END_RANK
         | ,REGEXP_EXTRACT(PM_VALUE,"(^.*\')(.*)(\'.*$)",2) AS EXEC_COMMAND
         |FROM CCIC_INFA_VIEW_INFO
+        |WHERE PM_VALUE IS NOT NULL
         |ORDER BY END_RANK DESC
         |
       """.stripMargin)
